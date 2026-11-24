@@ -44,11 +44,11 @@ async def ai_error(_: Request, e: AIError):
 
 
 def client_ip(request: Request) -> str:
-    if settings.trust_forwarded_for:
-        forwarded = request.headers.get("x-forwarded-for", "")
-        if forwarded:
-            # The last entry is added by our own proxy; earlier ones can be faked by the caller.
-            return forwarded.split(",")[-1].strip()
+    # Only trust a header your proxy sets and overwrites (Cloudflare's CF-Connecting-IP on Render).
+    if settings.client_ip_header:
+        ip = request.headers.get(settings.client_ip_header, "").strip()
+        if ip:
+            return ip
     return request.client.host if request.client else "unknown"
 
 
@@ -144,8 +144,3 @@ async def ask(q: Question, request: Request, s: Session = Depends(session)) -> A
     sources = [Source(n=n, file=h.doc, page=h.page, excerpt=h.text[:240]) for n, h in enumerate(hits, start=1)]
     return Answer(answer=text, sources=sources, search="hybrid" if qv else "keyword")
 
-
-@app.get("/debug-headers", include_in_schema=False)  # TEMP: remove after checking proxy headers
-def debug_headers(request: Request):
-    keep = ("x-forwarded-for", "true-client-ip", "cf-connecting-ip", "x-real-ip", "rndr-id", "cf-ray", "forwarded")
-    return {k: v for k, v in request.headers.items() if k in keep} | {"peer": request.client.host if request.client else None}

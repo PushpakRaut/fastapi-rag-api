@@ -119,8 +119,11 @@ def test_document_cap_and_delete(client):
         main.upload_limit.limit = main.settings.uploads_per_window
 
 
-def test_client_ip_uses_proxy_added_entry(monkeypatch):
+def test_client_ip_uses_configured_proxy_header(monkeypatch):
     from types import SimpleNamespace
-    monkeypatch.setattr(main, "settings", SimpleNamespace(trust_forwarded_for=True))
-    req = SimpleNamespace(headers={"x-forwarded-for": "6.6.6.6, 1.2.3.4"}, client=SimpleNamespace(host="10.0.0.1"))
+    monkeypatch.setattr(main, "settings", SimpleNamespace(client_ip_header="cf-connecting-ip"))
+    req = SimpleNamespace(headers={"x-forwarded-for": "6.6.6.6", "cf-connecting-ip": "1.2.3.4"},
+                          client=SimpleNamespace(host="10.0.0.1"))
     assert main.client_ip(req) == "1.2.3.4"
+    monkeypatch.setattr(main, "settings", SimpleNamespace(client_ip_header=""))
+    assert main.client_ip(req) == "10.0.0.1"  # spoofable headers ignored when not configured

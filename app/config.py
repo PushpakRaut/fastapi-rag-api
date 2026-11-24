@@ -23,6 +23,6 @@ class Settings:
     uploads_per_window: int = _int("UPLOADS_PER_10_MIN", 5)
     questions_per_window: int = _int("QUESTIONS_PER_10_MIN", 30)
     rate_window_seconds: int = 600
-    # Behind one proxy (Render): use the X-Forwarded-For entry that proxy appended.
-    trust_forwarded_for: bool = os.getenv("TRUST_FORWARDED_FOR", "false").lower() == "true"
+    # Header holding the real client IP, set by your proxy (e.g. cf-connecting-ip). Empty = use the socket peer.
+    client_ip_header: str = os.getenv("CLIENT_IP_HEADER", "").lower()
     secure_cookies: bool = os.getenv("SECURE_COOKIES", "false").lower() == "true"

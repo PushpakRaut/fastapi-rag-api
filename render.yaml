@@ -17,7 +17,7 @@ services:
         value: gemini-embedding-001
       - key: EMBED_DIMENSIONS
         value: "768"
-      - key: TRUST_FORWARDED_FOR
-        value: "true"
+      - key: CLIENT_IP_HEADER        # Render sits behind Cloudflare, which sets this and overwrites any client value
+        value: cf-connecting-ip
       - key: SECURE_COOKIES
         value: "true"
