@@ -1,0 +1,18 @@
+[project]
+name = "fastapi-rag-api"
+version = "1.0.0"
+description = "FastAPI document Q&A with hybrid search (BM25 + embeddings) and cited answers"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pypdf>=5.1",
+    "httpx>=0.28",
+    "python-multipart>=0.0.20",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
