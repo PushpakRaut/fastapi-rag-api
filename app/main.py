@@ -143,3 +143,9 @@ async def ask(q: Question, request: Request, s: Session = Depends(session)) -> A
     text = THINK.sub("", await ai.answer(q.question, [h.text for h in hits])).strip()
     sources = [Source(n=n, file=h.doc, page=h.page, excerpt=h.text[:240]) for n, h in enumerate(hits, start=1)]
     return Answer(answer=text, sources=sources, search="hybrid" if qv else "keyword")
+
+
+@app.get("/debug-headers", include_in_schema=False)  # TEMP: remove after checking proxy headers
+def debug_headers(request: Request):
+    keep = ("x-forwarded-for", "true-client-ip", "cf-connecting-ip", "x-real-ip", "rndr-id", "cf-ray", "forwarded")
+    return {k: v for k, v in request.headers.items() if k in keep} | {"peer": request.client.host if request.client else None}
